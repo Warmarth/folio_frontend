@@ -8,7 +8,7 @@ interface MentorProfile {
   name?: string;
   bio?: string;
   expertise?: string;
-  image?: string;
+  image_url?: string;
 }
 
 export default function MentorshipPage() {
@@ -82,10 +82,10 @@ export default function MentorshipPage() {
                 }
                 className="cursor-pointer rounded-xl border bg-white p-5 transition hover:-translate-y-1 hover:shadow-md"
               >
-                {/* Image */}
-                {profile.image ? (
+                {/* image_url */}
+                {profile.image_url ? (
                   <img
-                    src={profile.image}
+                    src={profile.image_url}
                     alt={profile.name || "Mentor"}
                     className="mb-4 h-40 w-full rounded-lg object-cover"
                   />

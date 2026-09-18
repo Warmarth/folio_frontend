@@ -1,14 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 interface Mentor {
   name?: string;
+  user_id?: string;
   email?: string;
-  image?: string;
+  image_url?: string;
   bio?: string;
   expertise?: string;
+}
+
+interface relationship {
+  status?: "pending" | "active" | "declined" | "ended" | null;
+  requested_at?: string;
 }
 
 export default function MentorshipDetailsPage() {
@@ -17,11 +23,11 @@ export default function MentorshipDetailsPage() {
 
   const [mentor, setMentor] = useState<Mentor>({});
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<relationship>({});
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-  useEffect(() => {
-    const fetchMentor = async () => {
+  const fetchMentor = useCallback(async () => {
       try {
         const token = localStorage.getItem("access_token");
 
@@ -52,15 +58,71 @@ export default function MentorshipDetailsPage() {
         setMentor(data.data);
       } catch (error) {
         console.error("Error fetching mentor:", error);
-      } finally {
-        setLoading(false);
       }
-    };
+    }, [API_URL, mentor_id]);
 
-    if (mentor_id) {
-      fetchMentor();
+  const getRelationshipStatuses = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+
+      if (!token) {
+        console.log("No access token");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/api/mentor/${mentor_id}/status`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch relationship status");
+      }
+
+      setStatus(data ?? {});
+    } catch (error) {
+      console.error("Error fetching relationship status:", error);
     }
-  }, [mentor_id, API_URL]);
+  }, [API_URL, mentor_id]);
+
+  useEffect(() => {
+    if (!mentor_id) return;
+
+    queueMicrotask(() => {
+      void Promise.all([fetchMentor(), getRelationshipStatuses()]).finally(() => {
+        setLoading(false);
+      });
+    });
+  }, [fetchMentor, getRelationshipStatuses, mentor_id]);
+
+  async function StartMentorship() {
+    try {
+      const token = localStorage.getItem("access_token");
+
+      if (!token) {
+        console.log("No access token");
+        return;
+      }
+      const response = await fetch(
+        `${API_URL}/api/mentor/${mentor?.user_id}/request`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const data = await response.json();
+      console.log("Fetched mentor data:", data);
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch mentor");
+      }
+      await getRelationshipStatuses();
+    } catch (error) {
+      console.error("Error fetching mentor:", error);
+    }
+  }
 
   if (loading) {
     return (
@@ -75,11 +137,11 @@ export default function MentorshipDetailsPage() {
       <div className="mx-auto max-w-3xl">
         <h1 className="mb-6 text-2xl font-bold">Mentor Profile</h1>
 
-        {mentor.name ? (
+        {mentor?.name ? (
           <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
-            {mentor.image && (
+            {mentor.image_url && (
               <img
-                src={mentor.image}
+                src={mentor.image_url}
                 alt={mentor.name}
                 className="h-64 w-full object-cover"
               />
@@ -106,9 +168,35 @@ export default function MentorshipDetailsPage() {
                 </div>
               )}
 
-              <button className="mt-8 rounded-lg bg-black px-5 py-3 font-medium text-white hover:bg-gray-800">
-                Start Mentorship
-              </button>
+              {status.status === "active" ? (
+                <button
+                  className="mt-8 rounded-lg bg-gray-300 px-5 py-3 font-medium text-gray-700"
+                  disabled
+                >
+                  Mentorship Active
+                </button>
+              ) : status.status === "pending" ? (
+                <button
+                  className="mt-8 rounded-lg bg-gray-300 px-5 py-3 font-medium text-gray-700"
+                  disabled
+                >
+                  Request Pending
+                </button>
+              ) : status.status === "declined" || status.status === "ended" ? (
+                <button
+                  className="mt-8 rounded-lg bg-black px-5 py-3 font-medium text-white hover:bg-gray-800"
+                  onClick={StartMentorship}
+                >
+                  Request Again
+                </button>
+              ) : (
+                <button
+                  className="mt-8 rounded-lg bg-black px-5 py-3 font-medium text-white hover:bg-gray-800"
+                  onClick={StartMentorship}
+                >
+                  Start Mentorship
+                </button>
+              )}
             </div>
           </div>
         ) : (
