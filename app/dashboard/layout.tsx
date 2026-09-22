@@ -16,11 +16,9 @@ export default function LearnersLayout({
     email?: string;
     image_url?: string;
   }>({});
-  
+
   const router = useRouter();
-
-
-   function logout() {
+  function logout() {
     localStorage.removeItem("access_token");
     router.push("/login");
   }
@@ -46,7 +44,6 @@ export default function LearnersLayout({
         if (!response.ok) {
           throw new Error(data.error || "Failed to load profile");
         }
-
         setUser({ email: data.email, ...(data.profile || {}) });
       } catch (error) {
         console.error("Dashboard profile error:", error);
@@ -54,7 +51,7 @@ export default function LearnersLayout({
     }
     loadUser();
   }, []);
- 
+
   return (
     <div className="min-h-screen flex bg-[#f3efe3]">
       {/* Sidebar */}
@@ -160,7 +157,7 @@ export default function LearnersLayout({
 
           <button
             className="mt-4 text-[10px] uppercase tracking-wider text-white/40 hover:text-[#b5651d]"
-            onClick={ logout}
+            onClick={logout}
           >
             Sign out
           </button>

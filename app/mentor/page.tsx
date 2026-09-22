@@ -49,7 +49,6 @@ export default function MentorRegisterPage() {
     try {
       let imageUrl: string | undefined;
 
-      // step 1: if an image was picked, upload it first and get back its URL
       if (image) {
         const imageFormData = new FormData();
         imageFormData.append("image", image);
@@ -71,7 +70,6 @@ export default function MentorRegisterPage() {
         imageUrl = uploadData.image_url;
       }
 
-      // step 2: create the mentor profile with the resulting image_url (if any)
       const response = await fetch(
         `${API_URL}/api/mentors_create_profile`,
         {
@@ -99,8 +97,6 @@ export default function MentorRegisterPage() {
       }
 
       setSuccess("Mentor account created successfully.");
-
-      // If your backend returns a token:
       setTimeout(() => {
         router.push("/mentor/dashboard");
       }, 1000);
@@ -117,7 +113,7 @@ export default function MentorRegisterPage() {
       <div className="w-full max-w-xl bg-white border border-black/10 rounded-lg p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-serif text-[#1f1b16]">
-            Become a mentor
+            Build your Profile
           </h1>
 
           <p className="mt-2 text-sm text-black/50">

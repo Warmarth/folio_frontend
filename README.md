@@ -1,59 +1,127 @@
-# Folio frontend
+# Folio Frontend
 
-The Folio web client is a [Next.js](https://nextjs.org/) 16 application for a practical developer-learning platform. It provides the landing page, account registration and sign-in, profiles, exercise browsing, and exercise submission views.
+Folio is a developer learning platform built with Next.js. This frontend handles the learner experience, mentor workflows, profile creation, exercise browsing, submission review, and mentorship interactions.
 
-It connects to the Flask API in [`../../backend`](../../backend).
+The app expects a running backend API to provide authentication, exercise data, profile management, mentor and learner actions, and submission endpoints.
 
-## Requirements
+## Tech Stack
 
-- Node.js 20.9 or later
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- ESLint
+
+## Prerequisites
+
+- Node.js 20.9+
 - npm
-- A running Folio API (by default, at `http://127.0.0.1:5000`)
+- A running Folio backend API on a local address such as `http://127.0.0.1:5000`
 
-## Configuration
+## Environment Setup
 
-Create a `.env.local` file in this directory:
+Create a `.env.local` file in the project root:
 
 ```env
 NEXT_PUBLIC_API_URL=http://127.0.0.1:5000
 ```
 
-`NEXT_PUBLIC_API_URL` is exposed to the browser and must point to the API URL. The backend's CORS configuration permits `http://localhost:3000` and `http://127.0.0.1:3000` during local development.
+This value is exposed to the browser and is used for all client-side API calls. Make sure the backend allows requests from:
 
-## Run locally
+- `http://localhost:3000`
+- `http://127.0.0.1:3000`
 
-```powershell
+## Local Development
+
+```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Then open:
 
-Other commands:
+- `http://localhost:3000`
 
-```powershell
+Useful scripts:
+
+```bash
 npm run lint
 npm run build
 npm run start
 ```
 
-## Application routes
+## App Features
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Product landing page |
-| `/register` | Create an account through the API |
-| `/login` | Sign in and store the JWT in browser local storage |
-| `/me` | View and manage the signed-in profile |
-| `/dashboard` | View profiles |
-| `/dashboard/exercises` | Browse available exercises |
-| `/dashboard/exercises/[id]` | View and submit an exercise answer |
+- Landing page and public marketing content
+- User registration and login
+- Learner dashboard with profiles and mentorship discovery
+- Exercise catalog and exercise detail pages
+- Exercise submission flow
+- Mentor dashboard for creating exercises and reviewing submissions
+- Learner and mentor profile management
+- Mentorship request and status workflows
 
-Authenticated API calls use the access token stored as `access_token` in local storage. Start the backend and create an account before trying protected dashboard features.
+## Main Routes
 
-## Technology
+### Public
 
-- Next.js 16 and React 19
-- TypeScript
-- Tailwind CSS 4
-- ESLint
+| Route       | Purpose                                    |
+| ----------- | ------------------------------------------ |
+| `/`         | Landing page                               |
+| `/register` | Create a new account                       |
+| `/login`    | Sign in and store the JWT/access token     |
+| `/me`       | View and manage the signed-in user profile |
+
+### Learner / Dashboard
+
+| Route                        | Purpose                               |
+| ---------------------------- | ------------------------------------- |
+| `/dashboard`                 | Learner home and profile overview     |
+| `/dashboard/user/[id]`       | User profile detail                   |
+| `/dashboard/exercises`       | List available exercises              |
+| `/dashboard/exercises/[id]`  | Open an exercise and submit work      |
+| `/dashboard/projects`        | Project-related views                 |
+| `/dashboard/code-review`     | Review workflow and submissions       |
+| `/dashboard/mentorship`      | Browse mentors and request mentorship |
+| `/dashboard/mentorship/[id]` | Mentor profile and mentorship details |
+| `/dashboard/progress`        | Progress tracking                     |
+| `/dashboard/settings`        | Account settings                      |
+
+### Mentor
+
+| Route                               | Purpose                         |
+| ----------------------------------- | ------------------------------- |
+| `/mentor`                           | Mentor entry and profile setup  |
+| `/mentor/dashboard`                 | Mentor dashboard overview       |
+| `/mentor/dashboard/create_exercise` | Create a new exercise           |
+| `/mentor/exercises`                 | Manage mentor-created exercises |
+| `/mentor/exercises/[id]`            | Exercise detail and management  |
+| `/mentor/submissions`               | Review learner submissions      |
+| `/mentor/learners`                  | View assigned learners          |
+| `/mentor/performance`               | Mentor performance and activity |
+| `/mentor/settings`                  | Mentor settings                 |
+
+## Authentication Notes
+
+Protected routes rely on the browser-stored token named `access_token`. The app reads this token from local storage before calling secured API endpoints.
+
+## Project Structure
+
+```text
+app/
+  landing and route pages for public, learner, and mentor flows
+  components/
+    shared UI logic used across pages
+public/
+  static assets
+```
+
+## Backend Dependency
+
+This repository is the frontend client only. It connects to the Folio backend API for business logic and persistence. Make sure the backend is running before testing authenticated flows.
+
+## Notes
+
+- The app is designed for local development with a separate API service.
+- If the backend URL changes, update `NEXT_PUBLIC_API_URL` in `.env.local`.
+- For production deployment, set this environment variable to the correct public API endpoint.
