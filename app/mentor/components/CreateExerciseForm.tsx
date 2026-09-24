@@ -9,7 +9,7 @@ export default function CreateExerciseForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [difficulty, setDifficulty] = useState("beginner");
+  const [difficulty, setDifficulty] = useState("");
   const [instructions, setInstructions] = useState("");
   const [evaluationCriteria, setEvaluationCriteria] = useState("");
 
@@ -35,21 +35,18 @@ export default function CreateExerciseForm() {
     }
     const pattern = `${description.trim()} ${category} ${instructions.trim()} ${evaluationCriteria.trim()}`;
     try {
-      const response = await fetch(
-        `${API_URL}/api/exercises/create_exercise`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            title: title.trim(),
-            description: pattern,
-            level: difficulty,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/exercises/create_exercise`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: title.trim(),
+          description: pattern,
+          level: difficulty,
+        }),
+      });
 
       const data = await response.json();
 
@@ -77,9 +74,7 @@ export default function CreateExerciseForm() {
       <div className="mb-8">
         <p className="text-sm text-gray-500">Exercises</p>
 
-        <h1 className="mt-1 text-3xl font-bold">
-          Create Exercise
-        </h1>
+        <h1 className="mt-1 text-3xl font-bold">Create Exercise</h1>
 
         <p className="mt-2 text-gray-500">
           Create a practical exercise for your learners.
@@ -109,9 +104,7 @@ export default function CreateExerciseForm() {
 
         {/* Description */}
         <div>
-          <label className="mb-2 block text-sm font-medium">
-            Description
-          </label>
+          <label className="mb-2 block text-sm font-medium">Description</label>
 
           <textarea
             value={description}
@@ -126,9 +119,7 @@ export default function CreateExerciseForm() {
         {/* Category + Difficulty */}
         <div className="grid gap-5 md:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium">
-              Category
-            </label>
+            <label className="mb-2 block text-sm font-medium">Category</label>
 
             <select
               value={category}
@@ -148,9 +139,7 @@ export default function CreateExerciseForm() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium">
-              Difficulty
-            </label>
+            <label className="mb-2 block text-sm font-medium">Difficulty</label>
 
             <select
               value={difficulty}
@@ -168,9 +157,7 @@ export default function CreateExerciseForm() {
 
         {/* Instructions */}
         <div>
-          <label className="mb-2 block text-sm font-medium">
-            Instructions
-          </label>
+          <label className="mb-2 block text-sm font-medium">Instructions</label>
 
           <textarea
             value={instructions}
@@ -197,8 +184,8 @@ export default function CreateExerciseForm() {
           />
 
           <p className="mt-2 text-xs text-gray-500">
-            These criteria can be used by Folio&apos;s AI evaluator when
-            scoring submissions.
+            These criteria can be used by Folio&apos;s AI evaluator when scoring
+            submissions.
           </p>
         </div>
 
@@ -237,4 +224,3 @@ export default function CreateExerciseForm() {
     </div>
   );
 }
-

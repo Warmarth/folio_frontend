@@ -38,7 +38,7 @@ export default function MentorshipDetailsPage() {
   const getRelationshipStatuses = useCallback(async () => {
     try {
       const token = localStorage.getItem("access_token");
-      const mentor_user_id = localStorage.getItem("mentor_user_id");
+      const mentor_user_id = sessionStorage.getItem("mentor_user_id");
       if (!token) {
         console.log("No access token");
         return;
@@ -82,8 +82,6 @@ export default function MentorshipDetailsPage() {
           return;
         }
 
-        console.log("Fetching mentor with ID:", mentor_id);
-
         const response = await fetch(
           `${API_URL}/api/all_mentors/${mentor_id}`,
           {
@@ -98,7 +96,7 @@ export default function MentorshipDetailsPage() {
           throw new Error(data.message || "Failed to fetch mentor");
         }
 
-        localStorage.setItem("mentor_user_id", data?.data?.user_id);
+        sessionStorage.setItem("mentor_user_id", data?.data?.user_id);
 
         setMentor(data.data);
       } catch (error) {
@@ -205,7 +203,7 @@ export default function MentorshipDetailsPage() {
                 >
                   Request Pending
                 </button>
-              ) : status.status === "declined" || status.status === "ended" ? (
+              ) : status.status === "declined" ? (
                 <button
                   className="mt-8 rounded-lg bg-black px-5 py-3 font-medium text-white hover:bg-gray-800"
                   onClick={StartMentorship}
@@ -220,6 +218,8 @@ export default function MentorshipDetailsPage() {
                   Start Mentorship
                 </button>
               )}
+              {status.status==="ended"}
+
             </div>
           </div>
         ) : (
