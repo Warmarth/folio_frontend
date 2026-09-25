@@ -2,14 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-interface MentorProfile {
-  id: string;
-  name?: string;
-  bio?: string;
-  expertise?: string;
-  image_url?: string;
-}
+import { mentors } from "@/lib/api/mentors";
+import { MentorProfile } from "@/types/learners/mentorTypes";
 
 export default function MentorshipPage() {
   const router = useRouter();
@@ -17,33 +11,11 @@ export default function MentorshipPage() {
   const [profiles, setProfiles] = useState<MentorProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const token = localStorage.getItem("access_token");
-
-        if (!token) {
-          console.log("No access token");
-          return;
-        }
-
-        const response = await fetch(`${API_URL}/api/all_mentors`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch mentors");
-        }
-
-        console.log("Mentors:", data.data);
-
-        setProfiles(data.data);
+        const data = await mentors.getMentors();
+        setProfiles(data.data || []);
       } catch (error) {
         console.error("Error fetching mentors:", error);
       } finally {
@@ -52,7 +24,7 @@ export default function MentorshipPage() {
     };
 
     fetchProfiles();
-  }, [API_URL]);
+  }, []);
 
   if (loading) {
     return (

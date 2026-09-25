@@ -1,38 +1,27 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import {
+  SubmissionType,
+  SubmitExerciseProps,
+} from "@/types/learners/submitExercise";
+import { submitExerciseFunction } from "@/lib/api/mentors";
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-type Submission = {
-  id?: string;
-  answer?: string;
-  score?: number;
-  feedback?: string;
-  is_completed?: boolean;
-};
-
-type SubmitExerciseProps = {
-  exerciseId: string;
-};
+interface DataProp {
+  message?: string;
+  submission?: SubmissionType;
+}
 
 export default function SubmitExercise({ exerciseId }: SubmitExerciseProps) {
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkingSubmission, setCheckingSubmission] = useState(true);
-  const [submission, setSubmission] = useState<Submission | null>(null);
+  const [submission, setSubmission] = useState<SubmissionType | null>(null);
   const [error, setError] = useState("");
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      setError("You must be logged in to submit an exercise.");
-      return;
-    }
 
     if (!answer.trim()) {
       setError("Please enter an answer.");
@@ -43,31 +32,12 @@ export default function SubmitExercise({ exerciseId }: SubmitExerciseProps) {
     setError("");
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/submit/post_exercise/${exerciseId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            answer: answer.trim(),
-          }),
-        },
-      );
+      const data = (await submitExerciseFunction.postExercise(exerciseId, {
+        answer: answer.trim(),
+      })) as DataProp;
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.message || "Failed to submit exercise.");
-        return;
-      }
-      setSubmission(data.submission);
-
-      // The user now has a submission
+      setSubmission(data.submission ?? {});
       setHasSubmitted(true);
-
       setAnswer("");
     } catch (error) {
       console.error("Submit exercise error:", error);
@@ -78,42 +48,17 @@ export default function SubmitExercise({ exerciseId }: SubmitExerciseProps) {
   }
 
   const getExercise = useCallback(async () => {
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      setError("You must be logged in to view your submission.");
-      setCheckingSubmission(false);
-      return;
-    }
-
     try {
       setCheckingSubmission(true);
       setError("");
 
-      const response = await fetch(
-        `${API_URL}/api/submit/submitted_exercise/${exerciseId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      const response = (await submitExerciseFunction.getSubmitted(
+        exerciseId,
+      )) as { data?: SubmissionType | null };
+      const submitted = response.data ?? null;
 
-      const data = await response.json();
-      
-      if (response.status === 404) {
-        setSubmission(null);
-        setHasSubmitted(false);
-        return;
-      }
-
-      if (!response.ok) {
-        setError(data.message || "Failed to retrieve exercise submission.");
-        return;
-      }
-      setSubmission(data.data);
-      setHasSubmitted(true);
+      setSubmission(submitted);
+      setHasSubmitted(Boolean(submitted));
     } catch (error) {
       console.error("Get submitted exercise error:", error);
       setError("Something went wrong while retrieving your submission.");

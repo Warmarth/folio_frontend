@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import SubmitExercise from "@/app/components/submitExercise";
-
-type Exercise = { title?: string; description?: string };
+import { Exercise } from "@/types/learners/exerciseType";
+import { exercise as exercises } from "@/lib/api/mentors";
 
 export default function ExerciseDetailsPage() {
   const params = useParams();
@@ -15,36 +15,12 @@ export default function ExerciseDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [submitPage, setSubmitPage] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
   useEffect(() => {
     async function loadExercise() {
-      const token = localStorage.getItem("access_token");
-
-      if (!token) {
-        console.log("No access token");
-        return;
-      }
-
       try {
-        const response = await fetch(
-          `${API_URL}/api/exercises/all_exercise/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
+        const data = await exercises.getExerciseById(id);
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.error || "Failed to load exercise"
-          );
-        }
-
-        setExercise(data.data);
+        setExercise((data.data as Exercise) ?? null);
       } catch (error) {
         console.error("Exercise error:", error);
       } finally {
@@ -55,7 +31,7 @@ export default function ExerciseDetailsPage() {
     if (id) {
       loadExercise();
     }
-  }, [id, API_URL]);
+  }, [id]);
 
   if (loading) {
     return <main className="p-8">Loading exercise...</main>;

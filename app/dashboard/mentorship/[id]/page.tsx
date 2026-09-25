@@ -2,67 +2,30 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-
-interface Mentor {
-  name?: string;
-  user_id?: string;
-  email?: string;
-  image_url?: string;
-  bio?: string;
-  expertise?: string;
-}
-
-type RelationshipStatus = "active" | "pending" | "declined" | "ended";
-interface Relationship {
-  id?: string;
-  learner_id?: string;
-  mentor_id?: string;
-  status?: RelationshipStatus;
-  learner_name?: string;
-  mentor_name?: string;
-  requested_at?: string;
-  responded_at?: string;
-  ended_at?: string;
-}
+import {
+  MentorProfile,
+  Relationship,
+  RelationshipStatus,
+} from "@/types/learners/mentorTypes";
+import { mentors } from "@/lib/api/mentors";
 
 export default function MentorshipDetailsPage() {
   const params = useParams();
   const mentor_id = params.id as string;
 
-  const [mentor, setMentor] = useState<Mentor>({});
+  const [mentor, setMentor] = useState<MentorProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<Relationship>({});
+  const [status, setStatus] = useState<Relationship | null>(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const getRelationshipStatuses = useCallback(async () => {
     try {
-      const token = localStorage.getItem("access_token");
       const mentor_user_id = sessionStorage.getItem("mentor_user_id");
-      if (!token) {
-        console.log("No access token");
+      if (!mentor_user_id) {
         return;
       }
-
-      const response = await fetch(
-        `${API_URL}/api/mentor/${mentor_user_id}/status`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            data.error ||
-            `Request failed with status ${response.status}`,
-        );
-      }
-
+      const data = await mentors.getMentorStatus(mentor_user_id);
       setStatus(data ?? {});
     } catch (error) {
       console.error("Error fetching relationship status:", error);
@@ -73,32 +36,12 @@ export default function MentorshipDetailsPage() {
 
   useEffect(() => {
     if (!mentor_id) return;
+
     const fetch_mentor = async () => {
       try {
-        const token = localStorage.getItem("access_token");
-
-        if (!token) {
-          console.log("No access token");
-          return;
-        }
-
-        const response = await fetch(
-          `${API_URL}/api/all_mentors/${mentor_id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch mentor");
-        }
-
+        const data = await mentors.getMentor(mentor_id);
         sessionStorage.setItem("mentor_user_id", data?.data?.user_id);
-
-        setMentor(data.data);
+        setMentor(data?.data ?? {});
       } catch (error) {
         console.error("Error fetching mentor:", error);
       }
@@ -107,38 +50,22 @@ export default function MentorshipDetailsPage() {
   }, [mentor_id, API_URL]);
 
   useEffect(() => {
-    if (!mentor.user_id) return;
+    if (!mentor?.user_id) return;
 
     const timer = setTimeout(() => {
       void getRelationshipStatuses();
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [mentor.user_id, getRelationshipStatuses]);
+  }, [mentor?.user_id, getRelationshipStatuses]);
 
   async function StartMentorship() {
-    try {
-      const token = localStorage.getItem("access_token");
+    if (!mentor?.user_id) return;
 
-      if (!token) {
-        console.log("No access token");
-        return;
-      }
-      const response = await fetch(
-        `${API_URL}/api/mentor/${mentor.user_id}/request`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      const data = await response.json();
+    try {
+      const data = await mentors.postMentorRequest(mentor.user_id);
       console.log("Fetched mentor data:", data);
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch mentor");
-      }
+
       await getRelationshipStatuses();
     } catch (error) {
       console.error("Error fetching mentor:", error);
@@ -189,21 +116,21 @@ export default function MentorshipDetailsPage() {
                 </div>
               )}
 
-              {status.status === "active" ? (
+              {status?.status === "active" ? (
                 <button
                   className="mt-8 rounded-lg bg-gray-300 px-5 py-3 font-medium text-gray-700"
                   disabled
                 >
                   Mentorship Active
                 </button>
-              ) : status.status === "pending" ? (
+              ) : status?.status === "pending" ? (
                 <button
                   className="mt-8 rounded-lg bg-gray-300 px-5 py-3 font-medium text-gray-700"
                   disabled
                 >
                   Request Pending
                 </button>
-              ) : status.status === "declined" ? (
+              ) : status?.status === "declined" ? (
                 <button
                   className="mt-8 rounded-lg bg-black px-5 py-3 font-medium text-white hover:bg-gray-800"
                   onClick={StartMentorship}
@@ -218,8 +145,7 @@ export default function MentorshipDetailsPage() {
                   Start Mentorship
                 </button>
               )}
-              {status.status==="ended"}
-
+              {status?.status === "ended"}
             </div>
           </div>
         ) : (
