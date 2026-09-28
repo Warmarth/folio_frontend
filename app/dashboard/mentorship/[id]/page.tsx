@@ -2,12 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import {
-  MentorProfile,
-  Relationship,
-  RelationshipStatus,
-} from "@/types/learners/mentorTypes";
-import { mentors } from "@/lib/api/mentors";
+import { MentorProfile, Relationship } from "@/types/learners/mentorTypes";
+import { mentors } from "@/lib/api/serverRequests";
 
 export default function MentorshipDetailsPage() {
   const params = useParams();
@@ -17,7 +13,6 @@ export default function MentorshipDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<Relationship | null>(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const getRelationshipStatuses = useCallback(async () => {
     try {
@@ -32,7 +27,7 @@ export default function MentorshipDetailsPage() {
     } finally {
       setLoading(false);
     }
-  }, [API_URL]);
+  }, []);
 
   useEffect(() => {
     if (!mentor_id) return;
@@ -40,17 +35,20 @@ export default function MentorshipDetailsPage() {
     const fetch_mentor = async () => {
       try {
         const data = await mentors.getMentor(mentor_id);
-        sessionStorage.setItem("mentor_user_id", data?.data?.user_id);
+        if (data.data.user_id) {
+          sessionStorage.setItem("mentor_user_id", data.data.user_id);
+        }
         setMentor(data?.data ?? {});
       } catch (error) {
         console.error("Error fetching mentor:", error);
       }
     };
     fetch_mentor();
-  }, [mentor_id, API_URL]);
+  }, [mentor_id]);
 
   useEffect(() => {
-    if (!mentor?.user_id) return;
+    const mentorUserId = mentor?.user_id;
+    if (!mentorUserId) return;
 
     const timer = setTimeout(() => {
       void getRelationshipStatuses();
@@ -60,10 +58,11 @@ export default function MentorshipDetailsPage() {
   }, [mentor?.user_id, getRelationshipStatuses]);
 
   async function StartMentorship() {
-    if (!mentor?.user_id) return;
+    const mentorUserId = mentor?.user_id;
+    if (!mentorUserId) return;
 
     try {
-      const data = await mentors.postMentorRequest(mentor.user_id);
+      const data = await mentors.postMentorRequest(mentorUserId);
       console.log("Fetched mentor data:", data);
 
       await getRelationshipStatuses();

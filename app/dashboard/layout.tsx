@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { logout } from "@/lib/api/serverRequests";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -18,10 +19,6 @@ export default function LearnersLayout({
   }>({});
 
   const router = useRouter();
-  function logout() {
-    localStorage.removeItem("access_token");
-    router.push("/login");
-  }
 
   useEffect(() => {
     async function loadUser() {
@@ -157,7 +154,10 @@ export default function LearnersLayout({
 
           <button
             className="mt-4 text-[10px] uppercase tracking-wider text-white/40 hover:text-[#b5651d]"
-            onClick={logout}
+            onClick={() => {
+              logout();
+              router.push("/login");
+            }}
           >
             Sign out
           </button>

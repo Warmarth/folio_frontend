@@ -120,7 +120,7 @@ export default function DashboardPage() {
 
         imageUrl = uploadData.image_url;
       }
-      console.log(imageUrl)
+      console.log(imageUrl);
       // CREATE
       if (mode === "create") {
         const response = await fetch(`${API_URL}/api/create_profile`, {
@@ -269,7 +269,7 @@ export default function DashboardPage() {
             <div className="mx-auto mb-4 flex h-[84px] w-[84px] items-center justify-center overflow-hidden rounded-full border border-black/10 bg-[#e4e0d2] font-serif text-[28px] text-black/40">
               {user.image_url ? (
                 <img
-                  src={user.image_url}
+                  src={user?.image_url}
                   alt={user.name || "Profile photo"}
                   className="h-full w-full object-cover"
                 />
@@ -424,7 +424,7 @@ export default function DashboardPage() {
         {/* QUICK ACTIONS */}
         <section className="mt-5 grid gap-5 sm:grid-cols-3">
           <button
-            onClick={() => router.push("/exercises")}
+            onClick={() => router.push("/dashboard/exercises")}
             className="rounded bg-[#201f1b] p-5 text-left transition hover:bg-[#282721]"
           >
             <span className="font-mono text-[10px] uppercase tracking-widest text-[#56a89b]">
@@ -439,7 +439,7 @@ export default function DashboardPage() {
           </button>
 
           <button
-            onClick={() => router.push("/projects")}
+            onClick={() => router.push("dashboard/projects")}
             className="rounded bg-[#201f1b] p-5 text-left transition hover:bg-[#282721]"
           >
             <span className="font-mono text-[10px] uppercase tracking-widest text-[#56a89b]">
@@ -454,7 +454,7 @@ export default function DashboardPage() {
           </button>
 
           <button
-            onClick={() => router.push("/reviews")}
+            onClick={() => router.push("dashboard/code-review")}
             className="rounded bg-[#201f1b] p-5 text-left transition hover:bg-[#282721]"
           >
             <span className="font-mono text-[10px] uppercase tracking-widest text-[#56a89b]">

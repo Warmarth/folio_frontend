@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-type Profile = { id: string; name?: string; email?: string; bio?: string; image?: string };
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { Profile } from "@/types/learners/users";
+import { users } from "@/lib/api/serverRequests";
 
 export default function DashboardPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -12,25 +11,8 @@ export default function DashboardPage() {
   console.log(profiles);
 
   async function loadProfiles() {
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      console.log("No access token");
-      return;
-    }
-
     try {
-      const response = await fetch(`${API_URL}/api/all_profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to load profiles");
-      }
+      const data = await users.getUsers();
 
       setProfiles(data.data);
     } catch (error) {
@@ -62,9 +44,9 @@ export default function DashboardPage() {
               className="bg-white border border-black/10 rounded-lg p-5 cursor-pointer hover:border-[#3e7c74] transition"
             >
               <div className="flex items-center gap-4">
-                {profile.image ? (
+                {profile.image_url ? (
                   <img
-                    src={profile.image}
+                    src={profile.image_url}
                     alt={profile.name || "Profile"}
                     className="w-12 h-12 rounded-full object-cover"
                   />

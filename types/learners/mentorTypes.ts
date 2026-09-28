@@ -1,6 +1,5 @@
 export interface MentorProfile {
-  data: any;
-id?:string
+  id?:string
   name?: string;
   user_id?: string;
   email?: string;
@@ -25,4 +24,8 @@ export interface Relationship {
   requested_at?: string;
   responded_at?: string;
   ended_at?: string;
+}
+
+export interface MentorResponse {
+  data: MentorProfile;
 }

@@ -1,50 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-type Learner = { id: string; learner_name?: string; role?: string };
+import { learners as getLearners } from "@/lib/api/serverRequests";
+import { LearnerType } from "@/types/mentors/menteeType";
 
 export default function Learner() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-  const [learners, setLearners] = useState<Learner[]>([]);
+  const [learners, setLearners] = useState<LearnerType[]>([]);
 
   useEffect(() => {
     const fetchLearners = async () => {
-      const token = localStorage.getItem("access_token");
-
-      if (!token) {
-        console.log("No access token");
-        return;
-      }
-
       try {
-        const response = await fetch(
-          `${API_URL}/api/mentor/all_active_mentee`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch learners");
-        }
-
-        const data = await response.json();
-
+        const data = await getLearners.getLearners();
         console.log("Fetched learners:", data);
-
-        setLearners(data || []);
+        setLearners(data);
       } catch (error) {
         console.error("Error fetching learners:", error);
       }
     };
 
     fetchLearners();
-  }, [API_URL]);
+  }, []);
 
   return (
     <div>

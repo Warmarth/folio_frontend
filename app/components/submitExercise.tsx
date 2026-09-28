@@ -5,7 +5,7 @@ import {
   SubmissionType,
   SubmitExerciseProps,
 } from "@/types/learners/submitExercise";
-import { submitExerciseFunction } from "@/lib/api/mentors";
+import { submitExerciseFunction } from "@/lib/api/serverRequests";
 
 interface DataProp {
   message?: string;
@@ -61,7 +61,7 @@ export default function SubmitExercise({ exerciseId }: SubmitExerciseProps) {
       setHasSubmitted(Boolean(submitted));
     } catch (error) {
       console.error("Get submitted exercise error:", error);
-      setError("Something went wrong while retrieving your submission.");
+      // setError("Something went wrong while retrieving your submission.");
     } finally {
       setCheckingSubmission(false);
     }

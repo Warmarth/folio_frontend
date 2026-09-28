@@ -12,43 +12,24 @@ import Exercise from "../components/Exercise";
 import Activity from "../components/Activty";
 import Submission from "../components/submission";
 import { useEffect, useState } from "react";
-
-type ExerciseData = {
-  id: string;
-  title?: string;
-  description?: string;
-  level?: string;
-  xp_points?: number;
-};
-
-type SubmissionData = {
-  id: string;
-  user_name?: string;
-  exercise_name?: string;
-  submitted_at?: string;
-};
+import { menteeExerciseData } from "@/types/mentors/menteeExercise";
+import {
+  mentorExercise,
+  mentorSubmittedExercise,
+} from "@/lib/api/serverRequests";
+import { SubmittedExercise } from "@/types/mentors/menteeSubmission";
+import { learners as getLearners } from "@/lib/api/serverRequests";
+import { LearnerType } from "@/types/mentors/menteeType";
 
 export default function MentorDashboard() {
-  const [exercises, setExercises] = useState<ExerciseData[]>([]);
-  const [submitted, setSubmitted] = useState<SubmissionData[]>([]);
+  const [exercises, setExercises] = useState<menteeExerciseData[]>([]);
+  const [submitted, setSubmitted] = useState<SubmittedExercise[]>([]);
+  const [learners, setLearners] = useState<LearnerType[]>([]);
 
   useEffect(() => {
     async function loadExercises() {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
-
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/exercises/all_exercise/mentor`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
-        if (!res.ok) throw new Error(`Exercises fetch failed: ${res.status}`);
-        const data = await res.json();
+        const data = await mentorExercise.getExercise();
         setExercises(data.data || []);
       } catch (err) {
         console.error("Error loading exercises:", err);
@@ -56,32 +37,28 @@ export default function MentorDashboard() {
     }
 
     async function loadSubmissions() {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
-
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/submit/submitted_exercise`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
-        if (!res.ok) throw new Error(`Submissions fetch failed: ${res.status}`);
-        const data = await res.json();
+        const data = await mentorSubmittedExercise.getAllSubmitted();
         console.log(data.data);
-        setSubmitted(data.data || []);
+        setSubmitted(data.data ?? []);
       } catch (err) {
         console.error("Error loading submissions:", err);
       }
     }
+    const fetchLearners = async () => {
+      try {
+        const data = await getLearners.getLearners();
+        console.log("Fetched learners:", data);
+        setLearners(data);
+      } catch (error) {
+        console.error("Error fetching learners:", error);
+      }
+    };
 
+    fetchLearners();
     loadExercises();
     loadSubmissions();
   }, []);
-
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -99,14 +76,14 @@ export default function MentorDashboard() {
 
             <StatCard
               title="Submissions"
-              value="48"
+              value={String(submitted.length)}
               description="+14 this week"
               icon={<FileText size={20} />}
             />
 
             <StatCard
               title="Learners"
-              value="36"
+              value={String(learners.length)}
               description="+5 this month"
               icon={<Users size={20} />}
             />

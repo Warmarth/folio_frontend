@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { mentors } from "@/lib/api/mentors";
+import { mentors } from "@/lib/api/serverRequests";
 import { MentorProfile } from "@/types/learners/mentorTypes";
 
 export default function MentorshipPage() {

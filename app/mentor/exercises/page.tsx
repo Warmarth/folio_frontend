@@ -3,49 +3,19 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Exercise from "../components/Exercise";
+import { menteeExerciseData } from "@/types/mentors/menteeExercise";
+import { mentorExercise } from "@/lib/api/serverRequests";
 
-interface ExerciseData {
-  id?: string;
-  title?: string;
-  description?: string;
-  level?: string;
-  xp_points?: number;
-}
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const ExercisesPage = () => {
-  const [exercises, setExercises] = useState<ExerciseData[]>([]);
+  const [exercises, setExercises] = useState<menteeExerciseData[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     const fetchExercises = async () => {
-      const token = localStorage.getItem("access_token");
-
-      if (!token) {
-        console.log("No access token");
-        return;
-      }
-
       try {
-        const response = await fetch(
-          `${API_URL}/api/exercises/all_exercise/mentor`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch exercises");
-        }
-
-        const data = await response.json();
-
+        const data = await mentorExercise.getExercise();
         console.log("Fetched exercises:", data);
-
         setExercises(data.data || []);
       } catch (error) {
         console.error("Error fetching exercises:", error);
@@ -62,7 +32,10 @@ const ExercisesPage = () => {
       <div className="grid grid-cols-1 gap-4">
         {exercises.length > 0 ? (
           exercises.map((exercise) => (
-            <div key={exercise.id} onClick={() => router.push(`/mentor/exercises/${exercise.id}`)}>
+            <div
+              key={exercise.id}
+              onClick={() => router.push(`/mentor/exercises/${exercise.id}`)}
+            >
               <Exercise
                 key={exercise.id}
                 title={exercise.title || ""}

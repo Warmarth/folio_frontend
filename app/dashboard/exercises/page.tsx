@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Exercise } from "@/types/learners/exerciseType";
-import { exercise } from "@/lib/api/mentors";
+import { ExerciseData } from "@/types/learners/exerciseType";
+import { exercise } from "@/lib/api/serverRequests";
 export default function ExercisesPage() {
-  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [exercises, setExercises] = useState<ExerciseData[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 

@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import SubmitExercise from "@/app/components/submitExercise";
-import { Exercise } from "@/types/learners/exerciseType";
-import { exercise as exercises } from "@/lib/api/mentors";
+import { ExerciseContent } from "@/types/learners/exerciseType";
+import { exercise as exercises } from "@/lib/api/serverRequests";
 
 export default function ExerciseDetailsPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const [exercise, setExercise] = useState<Exercise | null>(null);
+  const [exercise, setExercise] = useState<ExerciseContent | null>(null);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [submitPage, setSubmitPage] = useState(false);
@@ -19,8 +19,7 @@ export default function ExerciseDetailsPage() {
     async function loadExercise() {
       try {
         const data = await exercises.getExerciseById(id);
-
-        setExercise((data.data as Exercise) ?? null);
+        setExercise(data.data ?? null);
       } catch (error) {
         console.error("Exercise error:", error);
       } finally {
