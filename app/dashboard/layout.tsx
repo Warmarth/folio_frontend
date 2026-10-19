@@ -77,6 +77,12 @@ export default function LearnersLayout({
           >
             ▦ Projects
           </Link>
+          <Link
+            href="/dashboard/playground"
+            className="block px-3 py-2 text-sm text-white/70 hover:bg-white/5 rounded"
+          >
+            ▦ playground
+          </Link>
 
           <a
             href="/dashboard/code-review"
