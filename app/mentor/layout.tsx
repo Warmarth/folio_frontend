@@ -205,6 +205,12 @@ export default function MentorLayout({
             active={pathname === "/mentor/performance"}
             onClick={() => router.push("/mentor/performance")}
           />
+          <NavItem
+            icon={<BarChart3 size={19} />}
+            label="▷ Playground"
+            active={pathname === "/mentor/playground"}
+            onClick={() => router.push("/mentor/playground")}
+          />
 
           <NavItem
             icon={<Settings size={19} />}
@@ -335,6 +341,12 @@ export default function MentorLayout({
               className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
             >
               + Create Exercise
+            </button>
+            <button
+              onClick={() => router.push("/mentor")}
+              className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+            >
+              profile
             </button>
           </div>
         </header>

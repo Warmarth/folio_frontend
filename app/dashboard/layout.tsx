@@ -72,7 +72,7 @@ export default function LearnersLayout({
           </Link>
 
           <Link
-            href="/playground"
+            href="/dashboard/playground"
             className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/5 rounded"
           >
             ▷ Playground
